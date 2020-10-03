@@ -14,9 +14,9 @@ let package = Package(
             targets: ["PassKit"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0-beta"),
-        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0-beta"),
-        .package(url: "https://github.com/vapor/apns.git", from: "1.0.0-beta"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/fluent.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/apns.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0")
     ],
     targets: [

@@ -66,7 +66,7 @@ public class PassKit {
         PassKitCustom<PKPass, PKDevice, PKRegistration, PKErrorLog>.sendPushNotifications(for: pass, on: db, app: app)
     }
     
-    public static func sendPushNotifications(for pass: Parent<PKPass>, on db: Database, app: Application) -> EventLoopFuture<Void> {
+    public static func sendPushNotifications(for pass: ParentProperty<PKRegistration, PKPass>, on db: Database, app: Application) -> EventLoopFuture<Void> {
         PassKitCustom<PKPass, PKDevice, PKRegistration, PKErrorLog>.sendPushNotifications(for: pass, on: db, app: app)
     }
 }
@@ -143,11 +143,13 @@ public class PassKitCustom<P, D, R: PassKitRegistration, E: PassKitErrorLog> whe
         if app.apns.configuration == nil {
             do {
                 if let pwd = delegate.pemPrivateKeyPassword {
-                    app.apns.configuration = try .init(privateKeyPath: privateKeyPath, pemPath: pemPath, topic: "", environment: .production, logger: logger) {
+                    app.apns.configuration = .init(authenticationMethod: try .tls(privateKeyPath: privateKeyPath, pemPath: pemPath,
+                      passphraseCallback: {
                         $0(pwd.utf8)
-                    }
+                      }), topic: "", environment: .production, logger: logger)
                 } else {
-                    app.apns.configuration = try .init(privateKeyPath: privateKeyPath, pemPath: pemPath, topic: "", environment: .production, logger: logger)
+                    app.apns.configuration = .init(authenticationMethod: try .tls(privateKeyPath: privateKeyPath, pemPath: pemPath),
+                                                   topic: "", environment: .production, logger: logger)
                 }
             } catch {
                 throw PassKitError.nioPrivateKeyReadFailed(error)
@@ -401,10 +403,10 @@ public class PassKitCustom<P, D, R: PassKitRegistration, E: PassKitErrorLog> whe
         return Self.sendPushNotificationsForPass(id: id, of: pass.type, on: db, app: app)
     }
     
-    public static func sendPushNotifications(for pass: Parent<P>, on db: Database, app: Application) -> EventLoopFuture<Void> {
+    public static func sendPushNotifications(for pass: ParentProperty<R, P>, on db: Database, app: Application) -> EventLoopFuture<Void> {
         let future: EventLoopFuture<P>
-        
-        if let eagerLoaded = pass.eagerLoaded {
+
+        if let eagerLoaded = pass.value {
             future = db.eventLoop.makeSucceededFuture(eagerLoaded)
         } else {
             future = pass.get(on: db)
@@ -418,8 +420,8 @@ public class PassKitCustom<P, D, R: PassKitRegistration, E: PassKitErrorLog> whe
         // wrapper, but there's not really any value to forcing that on them when
         // we can just do the query ourselves like this.
         R.query(on: db)
-            .join(\._$pass)
-            .join(\._$device)
+            .join(parent: \._$pass)
+            .join(parent: \._$device)
             .with(\._$pass)
             .with(\._$device)
             .filter(P.self, \._$type == type)
