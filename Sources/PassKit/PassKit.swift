@@ -511,9 +511,9 @@ public class PassKitCustom<P, D, R: PassKitRegistration, E: PassKitErrorLog> whe
                 var isDir: ObjCBool = false
 
                 guard src.hasDirectoryPath &&
-                    FileManager.default.fileExists(atPath: src.unixPath(), isDirectory: &isDir) &&
-                    isDir.boolValue else {
-                        return db.eventLoop.makeFailedFuture(PassKitError.templateNotDirectory)
+                        FileManager.default.fileExists(atPath: src.path, isDirectory: &isDir) &&
+                        isDir.boolValue else {
+                    return db.eventLoop.makeFailedFuture(PassKitError.templateNotDirectory)
                 }
                 
                 return self.delegate.encode(pass: pass, db: db, encoder: encoder)
