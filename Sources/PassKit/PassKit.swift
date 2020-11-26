@@ -457,7 +457,8 @@ public class PassKitCustom<P, D, R: PassKitRegistration, E: PassKitErrorLog> whe
 
         let sslBinary = delegate.sslBinary
 
-        guard FileManager.default.fileExists(atPath: sslBinary.unixPath()) else {
+        //sslBinary.unixPath()
+        guard FileManager.default.fileExists(atPath: sslBinary.path) else {
             throw PassKitError.opensslBinaryMissing
         }
 
