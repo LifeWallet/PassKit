@@ -30,6 +30,7 @@ import Foundation
 
 extension URL {
     func unixPath() -> String {
-        absoluteString.replacingOccurrences(of: "file://", with: "")
+        return self.path
+//        absoluteString.replacingOccurrences(of: "file://", with: "")
     }
 }

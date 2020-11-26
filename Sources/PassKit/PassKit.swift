@@ -466,13 +466,15 @@ public class PassKitCustom<P, D, R: PassKitRegistration, E: PassKitErrorLog> whe
         proc.currentDirectoryURL = delegate.sslSigningFilesDirectory
         proc.executableURL = sslBinary
         
+        //"-in", root.appendingPathComponent("manifest.json").unixPath(),
+        //"-out", root.appendingPathComponent("signature").unixPath(),
         proc.arguments = [
             "smime", "-binary", "-sign",
             "-certfile", delegate.wwdrCertificate,
             "-signer", delegate.pemCertificate,
             "-inkey", delegate.pemPrivateKey,
-            "-in", root.appendingPathComponent("manifest.json").unixPath(),
-            "-out", root.appendingPathComponent("signature").unixPath(),
+            "-in", root.appendingPathComponent("manifest.json").path,
+            "-out", root.appendingPathComponent("signature").path,
             "-outform", "DER"
         ]
         
